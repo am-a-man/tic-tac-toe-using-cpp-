@@ -1,126 +1,132 @@
 #include<iostream>
 #include<conio.h>
-using namespace std;
 
+using ll = long long;
 
-//two player game
-class player
+class game
 {
-	char x;
+    char g[3][3];
+    int moves=0;
 public:
-	player(char c)
-		:x{ c } {};
-	
+    game()
+        :g{{'1','2','3'},{'4','5','6'},{'7','8','9'}}{}
+
+    void game_board();
+    void move(int i);
+    char win();
+    void start();
 };
-
-//invludes game board, player list , 
-class game {
-	
-	char a[3][3];
-public:
-	game();
-	void game_board();
-	void add_X();
-	int win_X();
-	int win_O();
-	void add_O();
-
-};
-
-void game::add_X()
-{
-	char n;
-	int b;
-	cout << "player'X' turn, enter position: "<<endl;
-	cin >> n;
-	for(int i=0;i<3;i++)
-		for (int j = 0; j < 3; j++)
-		{
-			if (a[i][j] == n)
-				a[i][j] = 'X';
-			
-			
-		}
-
-	b = win_X();
-	if (b == 1) {
-		system("cls");
-		game_board();
-		cout << "Player 'X' wins" << endl;
-		exit('0');
-	}
-}
-
-
-void game::add_O()
-{
-	char n;
-	int b;
-	cout << "player'O' turn, enter position: " << endl;
-	cin >> n;
-	for (int i = 0; i < 3; i++)
-		for (int j = 0; j < 3; j++)
-		{
-			if (a[i][j] == n)
-				a[i][j] = 'O';
-			
-
-		}
-	b = win_O();
-	if (b == 1)
-	{
-		system("cls");
-		game_board();
-		cout << "player 'O' wins" << endl;
-		exit('0');
-	}
-}
-
-
-int game::win_X()
-{
-	for (int i = 0; i < 3; i++)
-	{
-		return ((a[i][0] == 'X' && a[i][1] == 'X' && a[i][2] == 'X') || (a[0][i] == 'X' && a[1][i] == 'X' && a[2][i] == 'X') || (a[2][2] == 'X' && a[1][1] == 'X' && a[0][0] == 'X') || (a[0][2] == 'X' && a[1][1] == 'X' && a[2][0] == 'X'));
-	}
-
-}
-int game::win_O()
-{
-	for (int i = 0; i < 3; i++)
-	{
-		return ((a[i][0] == 'O' && a[i][1] == 'O' && a[i][2] == 'O') || (a[0][i] == 'O' && a[1][i] == 'O' && a[2][i] == 'O') || (a[2][2] == 'O' && a[1][1] == 'O' && a[0][0] == 'O') || (a[0][2] == 'O' && a[1][1] == 'O' && a[2][0] == 'O'));
-	}
-
-}
-
-game::game()
-	: a{ {'1','2','3'},{'4','5','6'},{'7','8','9'} } {}
 
 
 void game::game_board()
 {
-	for (int i = 0; i < 3; i++)
-	{
-		cout << a[i][0] << " | " << a[i][1] << " | " << a[i][2] << endl;
-		cout << "---------" << endl;
-	}
+    std::system("cls");
+    std::cout <<"moves: "<< moves << '\n';
+    for(int i=0;i<3;i++)
+    {
+        for(int j=0;j<3;j++)
+        {
+            std::cout << g[i][j] ;
+            if(j<2)
+                std::cout << " | ";
+        }
+        std::cout<<std::endl;
+    }
+}
+
+void game::move(int player)
+{
+    moves++;
+    char c=' ';
+    if(player==0)
+        c='X';
+    else
+        c='O';
+
+    std::cout <<"player "<<c<< "\nenter the position to place your move: " << '\n';
+    int pos;
+    std::cin >>pos ;
+    int i = (pos-1)/3;
+    int j = (pos-1)%3;
+
+    if(g[i][j]=='X' || g[i][j]=='O')
+    {
+        std::cout << "already filled, enter valid position" << '\n';
+        moves++;
+        move(player);
+    }
+    else
+    {
+        g[i][j]=c;
+    }
+}
+
+char game::win()
+{
+    char c=' ';
+    auto temp1=g[0][0];
+    auto temp2=g[0][3];
+    bool check_d1=true;
+    bool check_d2=true;
+    for(int i=0;i<3;i++)
+    {
+        char temp=g[i][i];
+        bool check_v=true;
+        bool check_h=true;
+        for(int j=0;j<3;j++)
+        {
+            if(g[i][j]!=temp)
+                check_v = false;
+            if(g[j][i]!=temp)
+                check_h=false;
+
+        }
+
+        if(check_v || check_h)
+        {
+            c=temp;
+            return c;
+        }
+        if(temp1!=g[i][i])
+            check_d1=false;
+        if(temp2!=g[3-i][i])
+            check_d2=false;
+    }
+    if(c==' ')
+    {
+        if(check_d1)
+            c=g[0][0];
+        if(check_d2)
+            c=g[0][3];
+    }
+
+    return c;
+}
+
+void game::start()
+{
+    game_board();
+    if(moves>=5)
+    {
+        char c = win();
+        if(moves==9 && c==' ')
+        {
+            std::cout<<"draw"<<std::endl;
+            return;
+        }
+        if(c!=' ')
+        {
+            std::cout<<"----------------------------"<<c<<" WINS----------------------------------\n";
+            return ;
+        }
+    }
+    int player=moves%2;
+    move(player);
+    start();
 }
 
 int main()
 {
-	game g;
-	char ch;
-	while (true) {
-		g.game_board();
-		g.add_X();
-		system("cls");
-		g.game_board();
-		g.add_O();
-		system("cls");
-
-		
-
-
-	}
+    game g;
+    g.start();
 }
